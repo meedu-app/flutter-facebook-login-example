@@ -27,15 +27,15 @@
             <string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>fb1{fb-app-id}</string>
-                <string>com.googleusercontent.apps.{CLIENT_ID}</string>
+				<string>fb1329834907365798</string>
+                <string>com.googleusercontent.apps.398495014315-goo18s834a6rqob2lqvfklfdoj1mr3md</string>
 			</array>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>FacebookAppID</key>
-	<string>{fb-app-id}</string>
+	<string>1329834907365798</string>
 	<key>FacebookDisplayName</key>
 	<string>Flutter FAuth Example</string>
 	<key>LSApplicationQueriesSchemes</key>

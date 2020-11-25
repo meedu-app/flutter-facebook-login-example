@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _getUserData() async {
-    _userData = await FacebookAuth.instance.getUserData(fields: "email,name,picture.width(300),birthday,friends");
+    _userData = await FacebookAuth.instance.getUserData(fields: "email,name,picture.width(300)");
   }
 
   Future<void> _loginWithFacebook() async {
@@ -70,14 +70,7 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         _fetching = true;
       });
-      _accessToken = await FacebookAuth.instance.login(
-        permissions: [
-          'email',
-          'public_profile',
-          'user_birthday',
-          'user_friends',
-        ],
-      );
+      _accessToken = await FacebookAuth.instance.login(permissions: ['email', 'public_profile', 'user_photos']);
       await _getUserData();
       setState(() {
         _fetching = false;
@@ -90,6 +83,7 @@ class _HomePageState extends State<HomePage> {
         _fetching = false;
       });
       if (e is FacebookAuthException) {
+        print(e.message);
         switch (e.errorCode) {
           case FacebookAuthErrorCode.OPERATION_IN_PROGRESS:
             print("FacebookAuthErrorCode.OPERATION_IN_PROGRESS");
