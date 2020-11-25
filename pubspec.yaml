@@ -24,7 +24,8 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.0
-  flutter_facebook_auth: ^1.0.0+3
+  flutter_facebook_auth: ^1.0.2
+  path_provider: ^1.6.24
 
 dev_dependencies:
   flutter_test:

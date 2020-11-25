@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
+  // WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
 
@@ -136,7 +138,15 @@ class _HomePageState extends State<HomePage> {
                   color: Colors.blueAccent,
                   child: Text("LOG OUT"),
                 ),
-              ]
+              ],
+              FlatButton(
+                onPressed: () async {
+                  final directory = await getApplicationDocumentsDirectory();
+                  print("🥳 ${directory.path}");
+                },
+                color: Colors.blueAccent,
+                child: Text("CHECK PATH_PROVIDER"),
+              ),
             ],
           ),
         ),
