@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
+import 'widgets/banner.dart';
+import 'widgets/link.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
@@ -19,7 +22,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter Facebook Auth Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -29,113 +32,72 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatefulWidget {
-  HomePage({Key key}) : super(key: key);
-
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  bool _fetching = true;
-
-  AccessToken _accessToken;
-  Map<String, dynamic> _userData;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkLogin();
-  }
-
-  Future<void> _checkLogin() async {
-    await Future.delayed(Duration(seconds: 1));
-    _accessToken = await FacebookAuth.instance.isLogged;
-    if (_accessToken != null) {
-      print("😅 is Logged");
-      await _getUserData();
-    }
-
-    _fetching = false;
-    setState(() {});
-  }
-
-  Future<void> _getUserData() async {
-    _userData = await FacebookAuth.instance.getUserData(fields: "email,name,picture.width(300),birthday,friends");
-  }
-
-  Future<void> _loginWithFacebook() async {
-    try {
-      setState(() {
-        _fetching = true;
-      });
-      _accessToken = await FacebookAuth.instance.login(
-        permissions: [
-          'email',
-          'public_profile',
-          'user_birthday',
-          'user_friends',
-        ],
-      );
-      await _getUserData();
-
-      print(
-        _accessToken.toJson(),
-      );
-    } on FacebookAuthException catch (e) {
-      switch (e.errorCode) {
-        case FacebookAuthErrorCode.OPERATION_IN_PROGRESS:
-          print("FacebookAuthErrorCode.OPERATION_IN_PROGRESS");
-          break;
-        case FacebookAuthErrorCode.CANCELLED:
-          print("FacebookAuthErrorCode.CANCELLED");
-          break;
-
-        case FacebookAuthErrorCode.FAILED:
-          print("FacebookAuthErrorCode.FAILED");
-          break;
-      }
-    } finally {
-      setState(() {
-        _fetching = false;
-      });
-    }
-  }
-
-  Future<void> _logOut() async {
-    await FacebookAuth.instance.logOut();
-    setState(() {
-      _accessToken = null;
-    });
-  }
+class HomePage extends StatelessWidget {
+  const HomePage({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
+      body: Container(
+        width: double.infinity,
+        child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (!_fetching && _accessToken == null)
-                FlatButton(
-                  onPressed: _loginWithFacebook,
-                  color: Colors.blueAccent,
-                  child: Text("LOGIN"),
+              MyBanner(),
+              SizedBox(height: 20),
+              Center(
+                child: Wrap(
+                  spacing: 5,
+                  children: [
+                    Link(
+                      child: Image.network(
+                        "https://img.shields.io/pub/v/flutter_facebook_auth?color=%2300b0ff&label=flutter_facebook_auth&style=flat-square",
+                      ),
+                      url: "https://pub.dev/packages/flutter_facebook_auth",
+                    ),
+                    Image.network(
+                      "https://img.shields.io/github/last-commit/the-meedu-app/flutter-facebook-auth?color=%23ffa000&style=flat-square",
+                    ),
+                    Image.network(
+                      "https://img.shields.io/github/license/the-meedu-app/flutter-facebook-auth?style=flat-square",
+                    ),
+                    Image.network(
+                      "https://img.shields.io/github/stars/the-meedu-app/flutter-facebook-auth?style=social",
+                    ),
+                  ],
                 ),
-              if (_fetching) CircularProgressIndicator(),
-              if (_accessToken != null) ...[
-                Text("HI ...."),
-                Text(prettyPrint(_userData)),
-                SizedBox(height: 20),
-                FlatButton(
-                  onPressed: _logOut,
-                  color: Colors.blueAccent,
-                  child: Text("LOG OUT"),
-                ),
-              ],
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Link(
+                    url: "https://www.buymeacoffee.com/meedu",
+                    child: Image.network(
+                      "https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png",
+                      width: 200,
+                    ),
+                  ),
+                  SizedBox(width: 4),
+                  Link(
+                    url: "https://www.paypal.com/paypalme/meeduapp",
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 25),
+                      decoration: BoxDecoration(
+                        color: Colors.blueAccent,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Text(
+                        "Donate with PayPal",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 19,
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ],
           ),
         ),
