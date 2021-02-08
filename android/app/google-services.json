@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "398495014315",
+    "firebase_url": "https://flutter-fauth-example.firebaseio.com",
+    "project_id": "flutter-fauth-example",
+    "storage_bucket": "flutter-fauth-example.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:398495014315:android:2b54e095fe19d1f458c6ee",
+        "android_client_info": {
+          "package_name": "app.meedu.facebook_auth_example"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "398495014315-gl7oolshn2od2mel5b96k9bnvpetssvi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.meedu.facebook_auth_example",
+            "certificate_hash": "52e1b5c2fd134118abf8fc565d489222e260a5a3"
+          }
+        },
+        {
+          "client_id": "398495014315-h98473oan75l35cadc3kkthsijecbs0r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9EyIG9Jo2VfB5F_y8XD4oTgummr-rSpQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "398495014315-h98473oan75l35cadc3kkthsijecbs0r.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "398495014315-goo18s834a6rqob2lqvfklfdoj1mr3md.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "app.meedu.facebookAuthExample"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

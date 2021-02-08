@@ -1,8 +1,10 @@
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,11 +12,7 @@ void main() async {
   runApp(MyApp());
 }
 
-String prettyPrint(Map json) {
-  JsonEncoder encoder = new JsonEncoder.withIndent('  ');
-  String pretty = encoder.convert(json);
-  return pretty;
-}
+enum LoginType { facebook, google, apple }
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -39,10 +37,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  FirebaseAuth _auth = FirebaseAuth.instance;
   bool _fetching = true;
-
-  AccessToken _accessToken;
-  Map<String, dynamic> _userData;
+  User get _currentUser => _auth.currentUser;
 
   @override
   void initState() {
@@ -52,59 +49,71 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _checkLogin() async {
     await Future.delayed(Duration(seconds: 1));
-    _accessToken = await FacebookAuth.instance.isLogged;
-    if (_accessToken != null) {
-      await _getUserData();
-    }
-
     _fetching = false;
     setState(() {});
   }
 
-  Future<void> _getUserData() async {
-    _userData = await FacebookAuth.instance.getUserData(fields: "email,name,picture.width(300)");
+  void _login(LoginType type) async {
+    setState(() {
+      _fetching = true;
+    });
+    OAuthCredential credential;
+    if (type == LoginType.facebook) {
+      credential = await _loginWithFacebook();
+    } else if (type == LoginType.google) {
+      credential = await _loginWithGoogle();
+    }
+
+    if (credential != null) {
+      await _auth.signInWithCredential(credential);
+    }
+
+    setState(() {
+      _fetching = false;
+    });
   }
 
-  Future<void> _loginWithFacebook() async {
+  Future<FacebookAuthCredential> _loginWithFacebook() async {
     try {
-      setState(() {
-        _fetching = true;
-      });
-      _accessToken = await FacebookAuth.instance.login(permissions: ['email', 'public_profile', 'user_photos']);
-      await _getUserData();
-      setState(() {
-        _fetching = false;
-      });
-      print(
-        _accessToken.toJson(),
+      final AccessToken accessToken = await FacebookAuth.instance.login();
+      return FacebookAuthProvider.credential(
+        accessToken.token,
       );
-    } catch (e, s) {
-      setState(() {
-        _fetching = false;
-      });
-      if (e is FacebookAuthException) {
-        print(e.message);
-        switch (e.errorCode) {
-          case FacebookAuthErrorCode.OPERATION_IN_PROGRESS:
-            print("FacebookAuthErrorCode.OPERATION_IN_PROGRESS");
-            break;
-          case FacebookAuthErrorCode.CANCELLED:
-            print("FacebookAuthErrorCode.CANCELLED");
-            break;
+    } on FacebookAuthException catch (e) {
+      print(e.message);
+      return null;
+    }
+  }
 
-          case FacebookAuthErrorCode.FAILED:
-            print("FacebookAuthErrorCode.FAILED");
-            break;
-        }
+  Future<GoogleAuthCredential> _loginWithGoogle() async {
+    try {
+      final GoogleSignInAccount account = await GoogleSignIn(scopes: ['email']).signIn();
+      if (account != null) {
+        // Obtain the auth details from the request
+        final GoogleSignInAuthentication googleAuth = await account.authentication;
+        return GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
       }
+      return null;
+    } catch (e) {
+      print(e);
+      return null;
     }
   }
 
   Future<void> _logOut() async {
-    await FacebookAuth.instance.logOut();
-    setState(() {
-      _accessToken = null;
-    });
+    final List<UserInfo> data = _currentUser.providerData;
+    String providerId = "firebase";
+    for (final item in data) {
+      if (item.providerId != "firebase") {
+        providerId = item.providerId;
+        break;
+      }
+    }
+    await _auth.signOut();
+    setState(() {});
   }
 
   @override
@@ -117,16 +126,27 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (!_fetching && _accessToken == null)
-                FlatButton(
-                  onPressed: _loginWithFacebook,
-                  color: Colors.blueAccent,
-                  child: Text("LOGIN"),
+              if (!_fetching && _currentUser == null)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FlatButton(
+                      onPressed: () => _login(LoginType.facebook),
+                      color: Colors.blueAccent,
+                      child: Text("FACEBOOK"),
+                    ),
+                    SizedBox(width: 10),
+                    FlatButton(
+                      onPressed: () => _login(LoginType.google),
+                      color: Colors.redAccent,
+                      child: Text("GOOGLE"),
+                    ),
+                  ],
                 ),
               if (_fetching) CircularProgressIndicator(),
-              if (_accessToken != null) ...[
+              if (_currentUser != null) ...[
                 Text("HI ...."),
-                Text(prettyPrint(_userData)),
+                Text(_currentUser.displayName),
                 SizedBox(height: 20),
                 FlatButton(
                   onPressed: _logOut,
